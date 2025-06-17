@@ -63,5 +63,23 @@ def handle_delete(id):
     # Return the message
     return jsonify(message), 200
 
+
+@app.route('/api/posts/<int:id>', methods=['PUT'])
+def handle_update(id):
+    """Update post data, first find post by id
+    if id does not exist return 'not found'"""
+    post = find_post_by_id(id)
+    if post is None:
+        return 'Not Found', 404
+
+    # Update the post with the new data
+    new_data = request.get_json()
+    post.update(new_data)
+
+    # Return the updated book
+    return jsonify(post)
+
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5002, debug=True)
