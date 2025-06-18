@@ -42,7 +42,7 @@ def handle_posts():
     if not validate_post_data(new_post):
         return jsonify({"error": "Invalid post data"}), 400
 
-    new_id = max(book['id'] for book in POSTS) + 1
+    new_id = max(post['id'] for post in POSTS) + 1
     new_post['id'] = new_id
     # Add the new post to our list
     POSTS.append(new_post)
@@ -79,6 +79,19 @@ def handle_update(id):
     # Return the updated book
     return jsonify(post)
 
+
+@app.route('/api/posts/search', methods=['GET'])
+def handle_search():
+    searched_list = []
+    title = request.args.get("title")
+    content = request.args.get("content")
+    for post in POSTS:
+        is_title = title in post['title'].lower() if title else False
+        is_content = content in post['content'].lower() if content else False
+        if is_title or is_content:
+            searched_list.append(post)
+
+    return searched_list
 
 
 if __name__ == '__main__':
