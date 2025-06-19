@@ -15,6 +15,7 @@ def validate_post_data(data):
         return False
     return True
 
+
 def find_post_by_id(post_id):
   """ Find the book with the id `book_id`.
   If there is no book with this id, return None. """
@@ -26,6 +27,29 @@ def find_post_by_id(post_id):
 
 @app.route('/api/posts', methods=['GET'])
 def handle_get():
+    """Make sorted list based on params and return sorted list, if no params return original list"""
+    sort = request.args.get("sort")
+    direction = request.args.get("direction")
+    is_sort_title = True if sort == 'title'  else False
+    is_direction_asc = True if direction == 'asc' else False
+    is_sort_content = True if sort == 'content' else False
+    is_direction_desc = True if direction == 'desc' else False
+    if is_sort_title and is_direction_asc:
+        sorted_list =sorted(POSTS, key=lambda post:post['title'])
+        return sorted_list
+
+    elif is_sort_title and is_direction_desc:
+        sorted_list = sorted(POSTS, key=lambda post: post['title'], reverse=True)
+        return sorted_list
+
+    elif is_sort_content and is_direction_asc:
+        sorted_list = sorted(POSTS, key=lambda post: post['content'])
+        return sorted_list
+
+    elif is_sort_content and is_direction_desc:
+        sorted_list = sorted(POSTS, key=lambda post: post['content'], reverse=True)
+        return sorted_list
+
     return jsonify(POSTS)
 
 
@@ -52,6 +76,7 @@ def handle_posts():
 
 @app.route('/api/posts/<int:id>', methods=['DELETE'])
 def handle_delete(id):
+    """Delete post based on id and return success message, if invalid id return 404 error"""
     post = find_post_by_id(id)
     if post is None:
         return 'Not Found', 404
@@ -82,6 +107,8 @@ def handle_update(id):
 
 @app.route('/api/posts/search', methods=['GET'])
 def handle_search():
+    """Find post or posts based on title (or part of it) or content (or part of it) or both,
+    make new list including these posts, return list """
     searched_list = []
     title = request.args.get("title")
     content = request.args.get("content")
