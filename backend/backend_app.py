@@ -30,10 +30,12 @@ def handle_get():
     """Make sorted list based on params and return sorted list, if no params return original list"""
     sort = request.args.get("sort")
     direction = request.args.get("direction")
+    print(sort)
     is_sort_title = True if sort == 'title'  else False
     is_direction_asc = True if direction == 'asc' else False
     is_sort_content = True if sort == 'content' else False
     is_direction_desc = True if direction == 'desc' else False
+    print(is_sort_title, is_sort_content, is_direction_asc, is_direction_desc)
     if is_sort_title and is_direction_asc:
         sorted_list =sorted(POSTS, key=lambda post:post['title'])
         return sorted_list
@@ -50,7 +52,11 @@ def handle_get():
         sorted_list = sorted(POSTS, key=lambda post: post['content'], reverse=True)
         return sorted_list
 
-    return jsonify(POSTS)
+    elif sort is not None or direction is not None:
+        return '400 Bad Request please enter valid parameter', 400
+
+    elif sort is None and direction is None:
+        return jsonify(POSTS)
 
 
 @app.route('/api/posts', methods=['POST'])
