@@ -89,3 +89,24 @@ body {
 .post button:hover {
     background-color: #cc0000;
 }
+.input-field select,
+.input-field input[type="text"] {
+    padding: 8px;
+    margin: 5px;
+    font-family: 'Poppins', sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.input-field button {
+    padding: 8px 12px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.input-field button:hover {
+    background-color: #125aa0;
+}

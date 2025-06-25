@@ -15,6 +15,18 @@
             <button onclick="loadPosts()">Load Posts</button>
         </div>
         <div class="input-field">
+            <input type="text" id="search-input" placeholder="Search posts...">
+            <select id="search-field">
+                <option value="all">All fields</option>
+                <option value="title">Title</option>
+                <option value="content">Content</option>
+                <option value="author">Author</option>
+                <option value="date">Date</option>
+            </select>
+            <button onclick="searchPosts()">Search</button>
+            <button onclick="loadPosts()">Reset</button>
+        </div>
+        <div class="input-field">
             <input type="text" id="post-title" placeholder="Enter Post Title">
             <input type="text" id="post-author" placeholder="Enter Post author">
             <input type="text" id="post-date" placeholder="Enter Post Date">

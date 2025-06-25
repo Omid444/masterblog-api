@@ -42,7 +42,9 @@ POSTS = load_post()
 
 def validate_post_data(data):
     """Validate if title either content are given as parameter"""
-    if ("title" not in data or "content" not in data or "author" not in data or "date" not in data) or (len(data) > 4):
+    if (("title" not in data or "content" not in data or "author" not in data or "date" not in data)
+            or (len(data) > 4)
+            or data["title"] == ''or data["content"] == ''or data["author"] == ''or data["date"] == '' ):
         return False
     return True
 
@@ -115,6 +117,7 @@ def handle_posts():
     new_post['id'] = new_id
     # Add the new post to our list
     POSTS.append(new_post)
+    save_post(POSTS)
     # Return the new post data to the client
     return jsonify(new_post),201
 
@@ -131,6 +134,7 @@ def handle_delete(id):
     "message": f"Post with id {id} has been deleted successfully."
     }
     # Return the message
+    save_post(POSTS)
     return jsonify(message), 200
 
 
