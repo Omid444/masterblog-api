@@ -27,7 +27,7 @@ function loadPosts() {
             data.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
+                postDiv.innerHTML = `<h2>${post.title}</h2><h4>${post.author}</h4><h6>${post.date}</h6><p>${post.content}</p>
                 <button onclick="deletePost(${post.id})">Delete</button>`;
                 postContainer.appendChild(postDiv);
             });
@@ -38,15 +38,18 @@ function loadPosts() {
 // Function to send a POST request to the API to add a new post
 function addPost() {
     // Retrieve the values from the input fields
+    console.log('this is add post')
     var baseUrl = document.getElementById('api-base-url').value;
     var postTitle = document.getElementById('post-title').value;
+    var postAuthor = document.getElementById('post-author').value;
+    var postDate = document.getElementById('post-date').value;
     var postContent = document.getElementById('post-content').value;
 
     // Use the Fetch API to send a POST request to the /posts endpoint
     fetch(baseUrl + '/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: postTitle, content: postContent })
+        body: JSON.stringify({ title: postTitle, author: postAuthor, date: postDate, content: postContent })
     })
     .then(response => response.json())  // Parse the JSON data from the response
     .then(post => {

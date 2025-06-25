@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
+import json
+import os
 
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
-
+# CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 SWAGGER_URL="/api/docs"  # (1) swagger endpoint e.g. HTTP://localhost:5002/api/docs
 API_URL="/static/masterblog.json" # (2) ensure you create this dir and file
 
@@ -19,14 +21,28 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 
-POSTS = [
-    {"id": 1, "title": "First post", "content": "This is the first post."},
-    {"id": 2, "title": "Second post", "content": "This is the second post."},
-]
+def load_post():
+    """Upload json file, if no such file exist in path or if it is empty it will return empty list"""
+    if os.path.exists('data/blog_posts.json'):
+        with open('data/blog_posts.json', 'r') as file:
+            content = file.read().strip()
+            if content:
+                return json.loads(content)
+    return []
+
+
+def save_post(posts):
+    """Write changes to jason file"""
+    json_post = json.dumps(posts, indent=4)
+    with open('data/blog_posts.json', 'w') as file:
+        file.write(json_post)
+
+POSTS = load_post()
 
 
 def validate_post_data(data):
-    if "title" not in data or "content" not in data:
+    """Validate if title either content are given as parameter"""
+    if ("title" not in data or "content" not in data or "author" not in data or "date" not in data) or (len(data) > 4):
         return False
     return True
 
@@ -40,32 +56,40 @@ def find_post_by_id(post_id):
           return post
 
 
+def find_sort_item(sort_param):
+    """Compare sort_param with sortin_item, return appropriate item"""
+    sorting_items = {'title', 'content', 'author', 'date'}
+    for item in sorting_items:
+        if sort_param == item:
+            return item
+    return False
+
+
+def find_direction_item(direction_param):
+    """Compare direction_param with 'asc','desc', return appropriate item"""
+    if direction_param == 'asc':
+        return False
+    elif direction_param == 'desc':
+        return True
+
+
+def implement_sort(sort_param, direction_param):
+    """Sort post based on sort_param, direction_param"""
+    sort_item = find_sort_item(sort_param)
+    direction_item = find_direction_item(direction_param)
+    if sort_item:
+        return sorted(POSTS, key=lambda post: post[sort_item], reverse=direction_item)
+    return False
+
+
 @app.route('/api/posts', methods=['GET'])
 def handle_get():
     """Make sorted list based on params and return sorted list, if no params return original list"""
     sort = request.args.get("sort")
     direction = request.args.get("direction")
-    print(sort)
-    is_sort_title = True if sort == 'title'  else False
-    is_direction_asc = True if direction == 'asc' else False
-    is_sort_content = True if sort == 'content' else False
-    is_direction_desc = True if direction == 'desc' else False
-    print(is_sort_title, is_sort_content, is_direction_asc, is_direction_desc)
-    if is_sort_title and is_direction_asc:
-        sorted_list =sorted(POSTS, key=lambda post:post['title'])
-        return sorted_list
 
-    elif is_sort_title and is_direction_desc:
-        sorted_list = sorted(POSTS, key=lambda post: post['title'], reverse=True)
-        return sorted_list
-
-    elif is_sort_content and is_direction_asc:
-        sorted_list = sorted(POSTS, key=lambda post: post['content'])
-        return sorted_list
-
-    elif is_sort_content and is_direction_desc:
-        sorted_list = sorted(POSTS, key=lambda post: post['content'], reverse=True)
-        return sorted_list
+    if sort in {'title', 'content', 'author', 'date'}:
+        return implement_sort(sort, direction)
 
     elif sort is not None or direction is not None:
         return '400 Bad Request please enter valid parameter', 400
@@ -143,4 +167,4 @@ def handle_search():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5002, debug=True)
+    app.run(host="127.0.0.1", port=5002, debug=True)
